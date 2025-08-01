@@ -6,22 +6,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(ENABLE_TESTING OFF)
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# Gather all source files in source folder
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
-
 # Gather all header files in include folder (not strictly necessary for build, but for IDEs)
-file(GLOB HEADERS "${CMAKE_SOURCE_DIR}/include/*.h" "${CMAKE_SOURCE_DIR}/include/*.hpp")
+file(GLOB HEADERS "${CMAKE_SOURCE_DIR}/include/observable_json/*.h")
+
+message(STATUS "Headers found: ${HEADERS}")
 
 if(BUILD_SHARED_LIBS)
-    set(PROJECT_NAME "${PROJECT_NAME}_shared")
+    set(PROJECT_NAME "${PROJECT_NAME}")
 else()
-    set(PROJECT_NAME "${PROJECT_NAME}_static")
+    set(PROJECT_NAME "${PROJECT_NAME}")
 endif()
 
-add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_library(${PROJECT_NAME} INTERFACE ${HEADERS})
 
-target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+if(ENABLE_TESTING)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
