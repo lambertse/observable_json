@@ -4,24 +4,23 @@ project(observable_json)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Fetch json11
+include(FetchContent)
+FetchContent_Declare(
+    json11
+    GIT_REPOSITORY https://github.com/dropbox/json11.git
+    GIT_TAG master
 )
+FetchContent_MakeAvailable(json11)
 
-# Gather all source files in source folder
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
+# Gather headers and sources
+file(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/observable_json/*.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/json_base/*.hpp")
+file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/json_base/*.cpp")
 
-# Gather all header files in include folder (not strictly necessary for build, but for IDEs)
-file(GLOB HEADERS "${CMAKE_SOURCE_DIR}/include/*.h" "${CMAKE_SOURCE_DIR}/include/*.hpp")
+add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-if(BUILD_SHARED_LIBS)
-    set(PROJECT_NAME "${PROJECT_NAME}_shared")
-else()
-    set(PROJECT_NAME "${PROJECT_NAME}_static")
-endif()
-
-add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-
-target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(${PROJECT_NAME} PUBLIC json11)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
